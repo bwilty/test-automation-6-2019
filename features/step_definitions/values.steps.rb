@@ -1,76 +1,37 @@
-require_relative '../../pages/values'
-
-
-# This module will hold any
-# utility functions that are used in multiple places
-module State
-
-    def newPage()
-        return ValuesPage.new()
-    end
-
-    def isEntryCurrency?(entry)
-        # To check if an entry is a currency, we will use a regular
-        # expression that says the string must begin with a $, optionally a -,
-        # and a number.  It must then be a series of numbers and commas,
-        # and it can optionally have a decimal point with one or two numbers after it.
-        # This regex doesn't care if commas are correctly placed, so it could be
-        # improved on that front, and it requires there are most two decimal
-        # points, which I think is iffy as a requirement.
-        index = entry =~ /^\$-?[0-9][0-9,]*(\.[0-9][0-9]?)?$/
-        return (index != nil)
-    end
-
-    def getCurrencyValue(entry)
-        # Returns the number associated with the currency if it is a currency.
-        if isEntryCurrency?(entry)
-            # ignore the initial $
-            entry = entry[1..]
-
-            # get rid of commas
-            entry.gsub!(/,/, "")
-
-            # convert to a number and return.  We will convert everything to 
-            # a float for simplicity
-            return entry.to_f()
-
-        # if it is not a currency, returns nil as an error value
-        else
-            return nil        
-        end
-    end
-
-end
-
-
-
-World(State)
+require_relative "../../pages/values"
+require_relative "../support/config"
 
 #####################
-# GIVEN's
+# GIVEN's - These blocks implement the Given statements in the feature file.
 #####################
 
-Given("the page is loaded") do
-    @page = self.newPage()
-    @page.goto("http://localhost/values")
+# Get a page object instance and go to the desired url.
+# It uses the correct domain based on the configuration.
+Given("the values page is loaded") do
+    @page = ValuesPage.new()
+    @page.goto(Configuration::DOMAIN + "/values")
 end
 
+# Get all the value entry strings on the page
 Given("the value entries") do
     @valueEntries = @page.getValueEntries()
 end
 
+# Get all the currency entry strings on the page
 Given("the currency entries") do
     @currencyEntries = @page.getCurrencyEntries()
 end
 
+# Get the string representing the total balance
 Given("the total balance") do
     @totalBalance = @page.getTotalCurrency()
 end
 
 ###################
-# THEN's
+# THEN's - These blocks implement the Then statements in the feature file.
 ###################
 
+# The lengths of valueEntries and currencyEntries should match
 Then("the amount of value and currency entries should be equal") do
     # first ensure that @valueEntries and @currencyEntries have been built
     expect(@valueEntries).not_to be_nil
@@ -80,6 +41,7 @@ Then("the amount of value and currency entries should be equal") do
     expect(@valueEntries.length).to eq(@currencyEntries.length)
 end
 
+# The length of valueEntries should equal some number
 Then("I should see {int} value entries") do |num|
     # first ensure that @valueEntries is built
     expect(@valueEntries).not_to be_nil
@@ -88,6 +50,7 @@ Then("I should see {int} value entries") do |num|
     expect(@valueEntries.length).to eq(num)
 end
 
+# The length of currencyEntries should equal some number
 Then("I should see {int} currency entries") do |num|
     # first ensure that @currencyEntries is built
     expect(@currencyEntries).not_to be_nil
@@ -96,6 +59,9 @@ Then("I should see {int} currency entries") do |num|
     expect(@currencyEntries.length).to eq(num)
 end
 
+# The numerical value of each currency entry should be greater than some number.
+# This also implies that each currency entry is correctly formatted to enable 
+# interpreting a float value from it.
 Then("each currency entry should be greater than {int}") do |value|
     # first ensure that @currencyEntries is built
     expect(@currencyEntries).not_to be_nil
@@ -104,23 +70,28 @@ Then("each currency entry should be greater than {int}") do |value|
     # it is formatted correctly) and ensure the value is greater than
     # the value parameter
     @currencyEntries.each do |currencyEntry|
-        currencyValue = self.getCurrencyValue(currencyEntry)
+        currencyValue = getCurrencyValue(currencyEntry)
         expect(currencyValue).not_to be_nil
         expect(currencyValue > value).to be_truthy
     end
 end
 
+# The text of each currency entry is correctly formatted as a currency
 Then("each currency entry is formatted correctly") do
     # first ensure that @currencyEntries is built
     expect(@currencyEntries).not_to be_nil
 
     # then check that each entry is formatted correctly
     @currencyEntries.each do |currencyEntry|
-        isCurrency = self.isEntryCurrency?(currencyEntry)
+        isCurrency = isEntryCurrency?(currencyEntry)
         expect(isCurrency).to be_truthy
     end
 end
 
+# The sum of the floats of currencyEntries is equal to the float
+# value for the totalBalance.  This implies that all of these are
+# correctly formatted as currencies so that float values can be
+# interpreted from them.
 Then("the total balance is equal to the sum of the currency entries") do
     # first ensure that @currencyEntries and @totalBalance are built
     expect(@currencyEntries).not_to be_nil
@@ -128,7 +99,7 @@ Then("the total balance is equal to the sum of the currency entries") do
 
     # then, convert the total balance to a value (and fail if it is implicitly
     # discovered to not be formatted correctly)
-    totalValue = self.getCurrencyValue(@totalBalance)
+    totalValue = getCurrencyValue(@totalBalance)
     expect(totalValue).not_to be_nil
 
     # next, get the sum of all currency entries.  If any currency entry
@@ -136,7 +107,7 @@ Then("the total balance is equal to the sum of the currency entries") do
     # then fail immediately.
     sum = 0
     @currencyEntries.each do |currencyEntry|
-        currencyValue = self.getCurrencyValue(currencyEntry)
+        currencyValue = getCurrencyValue(currencyEntry)
         expect(currencyValue).not_to be_nil
         sum += currencyValue    
     end

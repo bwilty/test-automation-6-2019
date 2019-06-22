@@ -2,7 +2,8 @@ require 'webrick'
 
 #######
 # This file runs a simple WEBrick server that mocks an HTTP server
-# for the call we want our tests to make.
+# on port 80 for the call we want our tests to make.  It serves up
+# a stubbed html file.
 #######
 
 mockServer = WEBrick::HTTPServer.new(:Port => "80")

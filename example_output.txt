@@ -1,0 +1,73 @@
+This file contains the output from running the cucumber command during a run of run_windows.bat, running on a Windows 10
+machine.  This represents the testing procedure that was done by this project.  Specific paths to the user's file system
+are obscured for privacy.
+
+A note on the results:  The results show that all tests pass except for one.  The sum of the invidual currency entries
+do not equal the total balance shown on the page.  This and all the tests were confirmed to be reasoned about correctly
+through manual inspection of the page.
+
+Note also that the fact that the ids of the lbl_val_# and txt_val_# elements do not align (lbl goes 1, 2, 3, 4, 5 and
+txt goes 1, 2, 4, 5, 6) were assumed to not matter and are thus not checked nor flagged as errors.
+
+
+---- CUCUMBER OUTPUT BELOW ----
+
+*** WARNING: You must use ANSICON 1.31 or higher (https://github.com/adoxa/ansicon/) to get coloured output on Windows
+C:/FILEPATH/features/support/config.rb:10: warning: already initialized constant Configuration::DOMAIN
+C:/FILEPATH/features/support/config.rb:10: warning: previous definition of DOMAIN was here
+#######
+# This defines the values page as a feature and sets up a set of test scenarios
+# to test the page.
+########
+Feature: The Values Page
+    Is the values page correct?
+
+
+DevTools listening on ws://127.0.0.1:53298/devtools/browser/f88875e5-7eed-4003-bb1c-1a98af4b26bb
+  # This occurs before every scenario and simply says that we want a chrome
+  # browser open and the page to be loaded
+  Background:                       # features/values.feature:11
+    Given the values page is loaded # features/step_definitions/values.steps.rb:10
+
+  # Verify that the right count of values appears on the screen.
+  Scenario: The right count of values appear on the screen        # features/values.feature:15
+    Given the value entries                                       # features/step_definitions/values.steps.rb:16
+    And the currency entries                                      # features/step_definitions/values.steps.rb:21
+    Then the amount of value and currency entries should be equal # features/step_definitions/values.steps.rb:35
+    And I should see 5 value entries                              # features/step_definitions/values.steps.rb:45
+    And I should see 5 currency entries                           # features/step_definitions/values.steps.rb:54
+
+  # last one is unneeded, but this makes the requirement explicit
+  # Verify that the values on the screen are greater than 0.
+  # I intrepret the the values in this case to refer to the currency entries
+  Scenario: Each value on the screen is greater than 0 # features/values.feature:25
+    Given the currency entries                         # features/step_definitions/values.steps.rb:21
+    Then each currency entry should be greater than 0  # features/step_definitions/values.steps.rb:65
+
+  # Verify that the total balance is correct based on the values listed on the screen,
+  # which is equivalent to verifying that the total balance matches the sum of the values
+  Scenario: The total balance matches the sum of the values            # features/values.feature:31
+    Given the total balance                                            # features/step_definitions/values.steps.rb:26
+    And the currency entries                                           # features/step_definitions/values.steps.rb:21
+    Then the total balance is equal to the sum of the currency entries # features/step_definitions/values.steps.rb:95
+
+      expected: 997000.0
+           got: 1000000.0
+
+      (compared using ==)
+       (RSpec::Expectations::ExpectationNotMetError)
+      ./features/step_definitions/values.steps.rb:116:in `"the total balance is equal to the sum of the currency entries"'
+      features/values.feature:34:in `Then the total balance is equal to the sum of the currency entries'
+
+  # Verify that the values are formatted as currencies.  Note that this occurs implicitly
+  # in the previous two scenarios as well.
+  Scenario: The values are formatted as currencies  # features/values.feature:38
+    Given the currency entries                      # features/step_definitions/values.steps.rb:21
+    Then each currency entry is formatted correctly # features/step_definitions/values.steps.rb:80
+
+Failing Scenarios:
+cucumber features/values.feature:31 # Scenario: The total balance matches the sum of the values
+
+4 scenarios (1 failed, 3 passed)
+16 steps (1 failed, 15 passed)
+0m4.061s
