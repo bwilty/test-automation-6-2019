@@ -2,6 +2,9 @@ This project demonstrates using Cucumber, Watir, and RSpec Expectations in the R
 programming language to test a page with values listed on it.  This was created as
 part of a job application assessment.
 
+This project was created using ruby version `ruby 2.6.3p62 (2019-04-16 revision 67580) [x64-mingw32]`
+and was last run using the latest version of the libraries in Gemfile as of June 22, 2019.
+
 - By Bryan Wiltgen
 - Last updated on June 22, 2019
 

@@ -23,7 +23,7 @@ Feature: The Values Page
     Is the values page correct?
 
 
-DevTools listening on ws://127.0.0.1:53298/devtools/browser/f88875e5-7eed-4003-bb1c-1a98af4b26bb
+DevTools listening on ws://127.0.0.1:53646/devtools/browser/b9bd20d1-9c06-43e2-8c5c-7c83eed51dfb
   # This occurs before every scenario and simply says that we want a chrome
   # browser open and the page to be loaded
   Background:                       # features/values.feature:11
@@ -70,4 +70,4 @@ cucumber features/values.feature:31 # Scenario: The total balance matches the su
 
 4 scenarios (1 failed, 3 passed)
 16 steps (1 failed, 15 passed)
-0m4.061s
+0m4.151s
